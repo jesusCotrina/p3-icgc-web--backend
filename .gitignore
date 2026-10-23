@@ -1,0 +1,33 @@
+# Dependencias
+node_modules/
+
+# Build de TypeScript
+dist/
+*.tsbuildinfo
+
+# Variables de entorno: tienen contraseñas, JWT_SECRET y REVALIDATE_SECRET.
+# La plantilla .env.example sí se sube.
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Archivos subidos desde el gestor: viven en el servidor, no en git.
+# Se conservan las carpetas vacías con su .gitkeep.
+uploads/**/*
+!uploads/**/
+!uploads/**/.gitkeep
+
+# Datos de PostgreSQL si se monta el volumen dentro de la carpeta
+postgres-data/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

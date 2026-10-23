@@ -1,0 +1,375 @@
+// ICGC — Instituto de Capacitación en Gestión Comunal
+// Base de datos compartida por frontend-web (pública) y frontend-gestor (admin).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Usuarios ───────────────────────────
+
+enum Role {
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(ADMIN)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts        Post[]
+  media        Media[]
+
+  @@map("users")
+}
+
+// ─────────────────────────── Media ───────────────────────────
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+}
+
+/// Todo archivo subido desde el gestor. Se guarda en disco del servidor
+/// (backend/uploads) y aquí queda su metadata.
+model Media {
+  id           String    @id @default(cuid())
+  kind         MediaKind
+  filename     String    @unique // nombre en disco
+  originalName String
+  mimeType     String
+  sizeBytes    BigInt
+  /// Ruta relativa dentro de UPLOAD_DIR, con "/" siempre (nunca "\")
+  relativePath String
+  width        Int?
+  height       Int?
+  durationSec  Int?
+  /// SEO: texto alternativo. Obligatorio en imágenes antes de publicarse.
+  alt          String?
+  caption      String?
+
+  uploadedBy   User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  uploadedById String?
+
+  createdAt    DateTime  @default(now())
+
+  blocks       PostBlock[]
+  coverOf      Post[]     @relation("PostCover")
+  courseCoverOf  Course[]   @relation("CourseCover")
+  projectCoverOf Project[]  @relation("ProjectCover")
+  logoOf       SiteSettings[] @relation("SiteLogo")
+  ogImageOf    SiteSettings[] @relation("SiteOgImage")
+  leaderPhotoOf SiteSettings[] @relation("LeaderPhoto")
+
+  @@index([kind, createdAt])
+  @@map("media")
+}
+
+// ─────────────────────────── Blog ───────────────────────────
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  /// SEO: parte de la URL /blog/categoria/<slug>
+  slug        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  posts       Post[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  posts     Post[]
+
+  @@map("tags")
+}
+
+model Post {
+  id              String     @id @default(cuid())
+  /// SEO: slug limpio en minúsculas con guiones. Es la URL /blog/<slug>
+  slug            String     @unique
+  title           String
+  subtitle        String?
+  /// Resumen que se muestra en el listado y en las tarjetas sociales
+  excerpt         String
+
+  // ── Campos exclusivos de SEO (obligatorios para publicar) ──
+  metaTitle       String?
+  metaDescription String?
+  /// URL canónica alternativa, por si el contenido se replica
+  canonicalUrl    String?
+  noindex         Boolean    @default(false)
+  /// Palabra clave objetivo, para los avisos del editor
+  focusKeyword    String?
+
+  coverImage      Media?     @relation("PostCover", fields: [coverImageId], references: [id], onDelete: SetNull)
+  coverImageId    String?
+  coverAlt        String?
+
+  status          PostStatus @default(DRAFT)
+  publishedAt     DateTime?
+  readingMinutes  Int        @default(1)
+  wordCount       Int        @default(0)
+  views           Int        @default(0)
+  featured        Boolean    @default(false)
+
+  author          User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId        String?
+
+  category        Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId      String?
+
+  tags            Tag[]
+  blocks          PostBlock[]
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([categoryId])
+  @@map("posts")
+}
+
+enum BlockType {
+  PARAGRAPH
+  HEADING   // subtítulo dentro del post -> <h2>/<h3>
+  IMAGE
+  VIDEO
+  QUOTE
+  LIST
+  EMBED     // YouTube / Vimeo
+  DIVIDER
+}
+
+/// El contenido del post NO es HTML crudo: son bloques ordenados.
+/// Así el frontend renderiza markup semántico (h2, figure, video) que Google entiende,
+/// en vez de un blob de HTML imposible de auditar.
+model PostBlock {
+  id        String    @id @default(cuid())
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  /// Posición dentro del artículo (0, 1, 2, ...)
+  position  Int
+  type      BlockType
+
+  /// PARAGRAPH / QUOTE / HEADING: el texto. LIST: un ítem por línea.
+  text      String?
+  /// HEADING: 2 o 3 (nunca 1: el h1 es el título del post)
+  level     Int?
+  /// LIST: "bullet" | "number"
+  listStyle String?
+
+  media     Media?    @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  mediaId   String?
+  /// SEO/accesibilidad del bloque multimedia
+  alt       String?
+  caption   String?
+  /// EMBED: url de YouTube/Vimeo
+  embedUrl  String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([postId, position])
+  @@index([postId])
+  @@map("post_blocks")
+}
+
+// ─────────────────────── Configuración del sitio ───────────────────────
+
+/// Fila única (id = "singleton"): el gestor edita el logo y los datos SEO globales.
+model SiteSettings {
+  id              String   @id @default("singleton")
+
+  siteName        String   @default("ICGC — Instituto de Capacitación en Gestión Comunal")
+  tagline         String   @default("Formación profesional en gestión comunal")
+  defaultMetaDescription String @default("Instituto de Capacitación en Gestión Comunal: cursos, diplomados y recursos para el fortalecimiento de la gestión comunal en el Perú.")
+  siteUrl         String   @default("http://localhost:3000")
+
+  logo            Media?   @relation("SiteLogo", fields: [logoMediaId], references: [id], onDelete: SetNull)
+  logoMediaId     String?
+  logoAlt         String   @default("Logo del Instituto de Capacitación en Gestión Comunal")
+
+  ogImage         Media?   @relation("SiteOgImage", fields: [ogImageMediaId], references: [id], onDelete: SetNull)
+  ogImageMediaId  String?
+
+  email           String?
+  phone           String?
+  whatsapp        String?
+  address         String?
+  city            String?  @default("Lima")
+  country         String?  @default("PE")
+
+  facebookUrl     String?
+  instagramUrl    String?
+  youtubeUrl      String?
+  linkedinUrl     String?
+  tiktokUrl       String?
+
+  googleAnalyticsId    String?
+  googleSiteVerification String?
+
+  // ── Cifras del hero de la página de inicio ──
+  // Se guardan solo los números: el "+" y las etiquetas los pone el frontend.
+  // projectsAdvised y regionsServed YA NO SE USAN: el hero las calcula desde
+  // la tabla projects para que coincidan con el mapa. Se conservan las
+  // columnas para no perder datos con una migración destructiva.
+  yearsExperience  Int    @default(10)
+  projectsAdvised  Int    @default(50)
+  regionsServed    Int    @default(3)
+
+  // ── Líder / gerente general (franja de /nosotros) ──
+  // Si leaderName está vacío la franja no se muestra en la web.
+  leaderName       String?
+  /// Cargo: "Gerente general"
+  leaderRole       String?
+  /// Título de la franja: "Más de 15 años trabajando con comunidades"
+  leaderHeadline   String?
+  leaderBio        String?
+  leaderPhoto      Media?  @relation("LeaderPhoto", fields: [leaderPhotoMediaId], references: [id], onDelete: SetNull)
+  leaderPhotoMediaId String?
+  leaderPhotoAlt   String?
+  /// Trayectoria: [{ period: "2015 – 2020", text: "..." }], en orden
+  leaderCareer     Json    @default("[]")
+
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// ─────────────────────────── Cursos ───────────────────────────
+
+enum CourseMode {
+  ONLINE
+  ONSITE
+  BLENDED
+}
+
+/// Curso de capacitación. Se lista en /cursos y en el carrusel del inicio.
+model Course {
+  id           String     @id @default(cuid())
+  /// SEO: ancla /cursos#<slug>
+  slug         String     @unique
+  name         String
+  summary      String
+  /// Texto libre: "8 semanas"
+  duration     String
+  lectiveHours Int
+  /// Cómo se dicta, tal como se muestra: "En vivo por Zoom"
+  modality     String     @default("En vivo por Zoom")
+  /// schema.org/CourseInstance.courseMode
+  mode         CourseMode @default(ONLINE)
+  material     String     @default("Material digital descargable")
+  certificate  String     @default("Certificado del ICGC")
+  audience     String
+  /// Contenido del programa: un tema por elemento, cantidad libre
+  topics       String[]
+  /// "¿Para qué te sirve?": lo que el participante logra al terminar
+  objective    String?
+  /// Dictado por: docente o equipo a cargo
+  instructor   String?
+
+  coverImage   Media?     @relation("CourseCover", fields: [coverImageId], references: [id], onDelete: SetNull)
+  coverImageId String?
+  coverAlt     String?
+
+  /// Orden en la web: menor primero
+  position     Int        @default(0)
+  isPublished  Boolean    @default(true)
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([isPublished, position])
+  @@map("courses")
+}
+
+// ─────────────────────────── Proyectos ───────────────────────────
+
+enum ProjectStatus {
+  IN_PROGRESS
+  COMPLETED
+  IN_FORMULATION
+  STOPPED
+}
+
+/// Proyecto acompañado por el instituto. Alimenta /proyectos, las tarjetas
+/// del inicio, el mapa "Nuestra huella" y las cifras del hero.
+model Project {
+  id                   String        @id @default(cuid())
+  /// SEO: ancla /proyectos#<slug>
+  slug                 String        @unique
+  title                String
+  duration             String
+  status               ProjectStatus @default(IN_PROGRESS)
+  capital              String
+  location             String
+  community            String
+  implementingEntity   String
+  area                 String
+  objective            String
+  /// Avances y logros: cantidad libre
+  achievements         String[]
+  /// Suma al total de comunidades del mapa
+  communitiesBenefited Int           @default(1)
+  /// Id de la región (ver PERU_REGIONS en types/api.ts): "pasco", "san-martin"
+  region               String
+  /// Dónde va el marcador del mapa. Si faltan, se usa el centro de la región.
+  latitude             Float?
+  longitude            Float?
+
+  coverImage           Media?        @relation("ProjectCover", fields: [coverImageId], references: [id], onDelete: SetNull)
+  coverImageId         String?
+  coverAlt             String?
+
+  position             Int           @default(0)
+  isPublished          Boolean       @default(true)
+
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([isPublished, position])
+  @@index([region])
+  @@map("projects")
+}
+
+// ─────────────────────────── Contacto ───────────────────────────
+
+/// Mensaje del formulario de contacto de /nosotros. Se lee en el gestor.
+model ContactMessage {
+  id        String    @id @default(cuid())
+  firstName String
+  lastName  String
+  email     String
+  phone     String
+  message   String?
+  /// null = no leído
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([createdAt])
+  @@map("contact_messages")
+}
