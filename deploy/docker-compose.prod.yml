@@ -4,8 +4,10 @@
 #
 #   cd /opt/icgc && docker compose -f docker-compose.prod.yml up -d
 #
-# - La imagen del backend se compila en la PC y se sube ya lista
-#   (compilar TypeScript + Prisma en 512 MB agota la memoria).
+# - La imagen del backend la compila GitHub Actions y la guarda en GitHub
+#   Container Registry (ghcr.io); el servidor solo la descarga. Compilar
+#   TypeScript + Prisma en 512 MB agotaría la memoria.
+# - BACKEND_IMAGE (en .env) es la imagen en uso; la escribe deploy/actualizar.sh.
 # - Ningún puerto queda abierto a internet: Nginx es la única entrada.
 # - Las fotos y videos van a /opt/icgc/uploads (Nginx los sirve directo).
 # ─────────────────────────────────────────────────────────────────────────────
@@ -46,7 +48,7 @@ services:
     <<: *logs
 
   backend:
-    image: icgc-backend:latest
+    image: ${BACKEND_IMAGE:-icgc-backend:latest}
     restart: unless-stopped
     depends_on:
       db:

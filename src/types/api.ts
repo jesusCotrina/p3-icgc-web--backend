@@ -259,6 +259,8 @@ export interface CourseDTO {
   objective: string | null;
   /** Dictado por */
   instructor: string | null;
+  /** Aún no abre inscripciones: la web muestra "¡Próximamente!" */
+  comingSoon: boolean;
   coverImage: MediaDTO | null;
   coverAlt: string | null;
   position: number;

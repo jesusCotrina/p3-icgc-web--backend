@@ -173,6 +173,7 @@ export function toCourseDTO(c: any): CourseDTO {
     topics: c.topics ?? [],
     objective: c.objective ?? null,
     instructor: c.instructor ?? null,
+    comingSoon: Boolean(c.comingSoon),
     coverImage: toMediaDTO(c.coverImage),
     coverAlt: c.coverAlt ?? null,
     position: c.position,

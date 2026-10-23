@@ -29,6 +29,8 @@ const courseSchema = z.object({
   // Opcionales: si quedan vacíos, la ficha de /cursos no muestra ese bloque
   objective: z.string().trim().max(800).nullable().optional().transform((v) => v || null),
   instructor: z.string().trim().max(200).nullable().optional().transform((v) => v || null),
+  /** Se anuncia en la web con el aviso "¡Próximamente!" */
+  comingSoon: z.boolean().default(false),
   coverImageId: z.string().nullable().optional(),
   coverAlt: z.string().trim().max(300).nullable().optional(),
   position: z.coerce.number().int().min(0).default(0),

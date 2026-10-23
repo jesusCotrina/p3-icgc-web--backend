@@ -5,14 +5,24 @@
 #
 #   ssh root@IP 'bash -s' < instalar-servidor.sh
 #
+# En un servidor nuevo, con otros dominios y la clave de GitHub Actions:
+#   ssh root@IP "DOMINIO_API=api.otro.com DOMINIO_GESTOR=gestor.otro.com \
+#     WEB_URL=https://otro.com DEPLOY_PUBKEY='ssh-ed25519 AAAA... github-actions' \
+#     bash -s" < instalar-servidor.sh
+#
 # Hace: swap de 2 GB, Docker + Compose, Nginx + Certbot, firewall,
 # /opt/icgc con su .env (secretos aleatorios) y la carpeta de uploads.
-# NO toca la configuración SSH ni borra nada existente.
+# Después, los despliegues los hace GitHub Actions (.github/workflows):
+# instalan los sitios de Nginx y piden el https la primera vez.
+# NO cambia la configuración de SSH ni borra nada existente.
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-DOMINIO_API="api.prometeoperu.com"
+DOMINIO_API="${DOMINIO_API:-api.prometeoperu.com}"
+DOMINIO_GESTOR="${DOMINIO_GESTOR:-gestor.prometeoperu.com}"
+# Web pública (Vercel): recibe el aviso para regenerar páginas al publicar
+WEB_URL="${WEB_URL:-https://p3-icgc-web-frontend.vercel.app}"
 DIR=/opt/icgc
 
 paso() { printf '\n\033[1;34m==> %s\033[0m\n' "$1"; }
@@ -73,10 +83,10 @@ PUBLIC_API_URL=https://$DOMINIO_API
 
 # Dominios que pueden llamar a la API desde el navegador (web y gestor).
 # Acepta comodines: https://mi-proyecto*.vercel.app cubre las vistas previas.
-CORS_ORIGINS=https://p3-icgc-web-frontend*.vercel.app
+CORS_ORIGINS=https://$DOMINIO_GESTOR,$WEB_URL,https://p3-icgc-web-frontend*.vercel.app
 
 # La web se regenera al publicar desde el gestor (mismo secreto en Vercel)
-WEB_REVALIDATE_URL=https://p3-icgc-web-frontend.vercel.app/api/revalidate
+WEB_REVALIDATE_URL=$WEB_URL/api/revalidate
 REVALIDATE_SECRET=$(aleatorio 32)
 
 MAX_IMAGE_SIZE_MB=10
@@ -88,6 +98,17 @@ else
   echo "ya existía: no se modifica"
 fi
 
+paso "Clave SSH de GitHub Actions"
+if [ -n "${DEPLOY_PUBKEY:-}" ]; then
+  install -m 700 -d /root/.ssh
+  touch /root/.ssh/authorized_keys
+  chmod 600 /root/.ssh/authorized_keys
+  grep -qxF "$DEPLOY_PUBKEY" /root/.ssh/authorized_keys || echo "$DEPLOY_PUBKEY" >> /root/.ssh/authorized_keys
+  echo "clave autorizada"
+else
+  echo "sin DEPLOY_PUBKEY: se omite"
+fi
+
 paso "Nginx para $DOMINIO_API"
 if [ -f /tmp/icgc-nginx-api.conf ]; then
   cp /tmp/icgc-nginx-api.conf /etc/nginx/sites-available/icgc-api
@@ -97,7 +118,7 @@ if [ -f /tmp/icgc-nginx-api.conf ]; then
   systemctl reload nginx
   echo "configuración aplicada"
 else
-  echo "falta /tmp/icgc-nginx-api.conf (se sube antes de ejecutar este script)"
+  echo "lo instala el primer despliegue de GitHub Actions"
 fi
 
 paso "Listo"

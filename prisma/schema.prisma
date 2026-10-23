@@ -291,6 +291,8 @@ model Course {
   objective    String?
   /// Dictado por: docente o equipo a cargo
   instructor   String?
+  /// "Próximamente": el curso se anuncia pero aún no abre inscripciones
+  comingSoon   Boolean    @default(false)
 
   coverImage   Media?     @relation("CourseCover", fields: [coverImageId], references: [id], onDelete: SetNull)
   coverImageId String?

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# Despliega el backend en el droplet desde tu PC (Git Bash).
+# Despliegue MANUAL desde tu PC (Git Bash). Lo normal es GitHub Actions
+# (.github/workflows/desplegar.yml); esto queda para emergencias y para
+# copiar los datos de desarrollo la primera vez (--con-datos).
 #
 #   cd backend && bash deploy/desplegar.sh              # actualiza el código
 #   cd backend && bash deploy/desplegar.sh --con-datos  # 1.ª vez: copia también
@@ -58,6 +60,9 @@ set -euo pipefail
 cd "$DIR"
 gunzip -c /tmp/icgc-imagen.tar.gz | docker load -q
 rm -f /tmp/icgc-imagen.tar.gz
+# La imagen local pasa a ser la que usa el compose (GitHub Actions la
+# reemplaza en su próximo despliegue)
+sed -i '/^BACKEND_IMAGE=/d' .env && echo 'BACKEND_IMAGE=icgc-backend:latest' >> .env
 
 # Nginx: se actualiza la config del sitio sin pisar lo que Certbot agregó (https)
 if ! grep -q 'managed by Certbot' /etc/nginx/sites-available/icgc-api 2>/dev/null; then
