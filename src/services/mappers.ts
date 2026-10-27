@@ -42,6 +42,11 @@ export function toMediaDTO(m: MediaRow | null | undefined): MediaDTO | null {
     sizeBytes: Number(m.sizeBytes),
     relativePath: m.relativePath,
     url: mediaUrl(m.relativePath),
+    // Miniatura liviana para listados (solo imágenes)
+    thumbUrl:
+      m.kind === 'IMAGE'
+        ? `${env.PUBLIC_API_URL.replace(/\/+$/, '')}/api/public/media/${m.id}/thumb`
+        : null,
     width: m.width,
     height: m.height,
     durationSec: m.durationSec,
@@ -174,6 +179,8 @@ export function toCourseDTO(c: any): CourseDTO {
     objective: c.objective ?? null,
     instructor: c.instructor ?? null,
     comingSoon: Boolean(c.comingSoon),
+    // Prisma devuelve Decimal: al JSON va como número
+    price: c.price == null ? null : Number(c.price),
     coverImage: toMediaDTO(c.coverImage),
     coverAlt: c.coverAlt ?? null,
     position: c.position,

@@ -44,6 +44,8 @@ router.get('/public/categories', publicApi.listPublicCategories);
 router.get('/public/settings', publicApi.getPublicSettings);
 router.get('/public/sitemap', publicApi.getSitemapData);
 router.get('/public/courses', courses.listPublicCourses);
+router.get('/public/courses/:slug', courses.getPublicCourse);
+router.get('/public/media/:id/thumb', media.mediaThumbnail);
 router.get('/public/projects', projects.listPublicProjects);
 
 // Formulario de contacto: 5 envíos cada 15 minutos por IP, contra el spam

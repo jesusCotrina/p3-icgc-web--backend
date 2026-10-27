@@ -56,7 +56,8 @@ export const listPublicPosts = asyncHandler(async (req, res) => {
     prisma.post.findMany({
       where,
       include: postSummaryInclude,
-      orderBy: [{ featured: 'desc' }, { publishedAt: 'desc' }],
+      // Siempre del más reciente al más antiguo (los destacados se piden aparte)
+      orderBy: { publishedAt: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),

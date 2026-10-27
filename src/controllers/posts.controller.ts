@@ -72,13 +72,16 @@ const listQuerySchema = z.object({
   categoryId: z.string().optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
-  sort: z.enum(['recent', 'oldest', 'views', 'title']).default('recent'),
+  sort: z.enum(['recent', 'newest', 'oldest', 'views', 'title']).default('recent'),
 });
 
 // ───────────────────────────── Helpers ─────────────────────────────
 
 function orderByFor(sort: string): Prisma.PostOrderByWithRelationInput {
   switch (sort) {
+    // Por fecha de creación: editar un artículo no lo mueve de lugar
+    case 'newest':
+      return { createdAt: 'desc' };
     case 'oldest':
       return { createdAt: 'asc' };
     case 'views':
@@ -179,7 +182,7 @@ export const createPost = asyncHandler(async (req, res) => {
   if (data.status === 'PUBLISHED') {
     const audit = auditPost({ ...data, slug, excerpt, wordCount: words });
     if (!audit.canPublish) {
-      throw badRequest('El artículo no cumple los requisitos mínimos de SEO para publicarse', audit);
+      throw badRequest('Al artículo todavía le faltan algunas cosas para publicarse', audit);
     }
   }
 
@@ -268,7 +271,7 @@ export const updatePost = asyncHandler(async (req, res) => {
       blocks,
     });
     if (!audit.canPublish) {
-      throw badRequest('El artículo no cumple los requisitos mínimos de SEO para publicarse', audit);
+      throw badRequest('Al artículo todavía le faltan algunas cosas para publicarse', audit);
     }
   }
 
@@ -346,7 +349,7 @@ export const changeStatus = asyncHandler(async (req, res) => {
   if (status === 'PUBLISHED') {
     const audit = auditPost({ ...existing, blocks: existing.blocks });
     if (!audit.canPublish) {
-      throw badRequest('El artículo no cumple los requisitos mínimos de SEO para publicarse', audit);
+      throw badRequest('Al artículo todavía le faltan algunas cosas para publicarse', audit);
     }
   }
 

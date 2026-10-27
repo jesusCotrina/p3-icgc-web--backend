@@ -293,6 +293,8 @@ model Course {
   instructor   String?
   /// "Próximamente": el curso se anuncia pero aún no abre inscripciones
   comingSoon   Boolean    @default(false)
+  /// Precio en soles; vacío = la web no muestra precio
+  price        Decimal?   @db.Decimal(10, 2)
 
   coverImage   Media?     @relation("CourseCover", fields: [coverImageId], references: [id], onDelete: SetNull)
   coverImageId String?

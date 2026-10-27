@@ -28,6 +28,8 @@ export interface MediaDTO {
   relativePath: string;
   /** URL absoluta servida por el backend: PUBLIC_API_URL + /uploads/... */
   url: string;
+  /** Miniatura de 320 px (solo imágenes) */
+  thumbUrl: string | null;
   width: number | null;
   height: number | null;
   durationSec: number | null;
@@ -261,6 +263,8 @@ export interface CourseDTO {
   instructor: string | null;
   /** Aún no abre inscripciones: la web muestra "¡Próximamente!" */
   comingSoon: boolean;
+  /** Precio en soles; null = no se muestra */
+  price: number | null;
   coverImage: MediaDTO | null;
   coverAlt: string | null;
   position: number;

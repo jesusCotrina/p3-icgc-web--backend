@@ -53,30 +53,35 @@ export function auditPost(post: AuditablePost): SeoAudit {
 
   // ── Bloqueantes ──
   if (!post.title.trim()) {
-    errors.push({ field: 'title', message: 'El título es obligatorio', level: 'error' });
+    errors.push({ field: 'title', message: 'Ponle un título al artículo', level: 'error' });
   }
   if (!post.slug.trim()) {
-    errors.push({ field: 'slug', message: 'El slug (URL) es obligatorio', level: 'error' });
+    errors.push({
+      field: 'slug',
+      message: 'Falta la dirección del artículo: escribe un título y se crea sola',
+      level: 'error',
+    });
   }
   if (!post.excerpt.trim()) {
     errors.push({
       field: 'excerpt',
-      message: 'El resumen es obligatorio: es lo que se ve en el listado y al compartir en redes',
+      message: 'Escribe un resumen o el primer párrafo: es lo que la gente ve antes de abrir el artículo',
       level: 'error',
     });
   }
 
-  const desc = (post.metaDescription ?? '').trim();
+  // Sin descripción para Google, se usa el resumen (igual que hace la web)
+  const desc = (post.metaDescription || post.excerpt || '').trim();
   if (!desc) {
     errors.push({
       field: 'metaDescription',
-      message: 'La meta descripción es obligatoria: es el texto que Google muestra bajo el título',
+      message: 'Falta el texto que Google muestra debajo del título',
       level: 'error',
     });
   } else if (desc.length < 50) {
     errors.push({
       field: 'metaDescription',
-      message: `La meta descripción es demasiado corta (${desc.length} caracteres). Mínimo 50, ideal ${DESC_MIN}-${DESC_MAX}`,
+      message: `El texto para Google es muy corto (${desc.length} letras). Escribe al menos 50; lo ideal es entre ${DESC_MIN} y ${DESC_MAX}`,
       level: 'error',
     });
   }
@@ -84,13 +89,13 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (!post.coverImageId) {
     errors.push({
       field: 'coverImage',
-      message: 'Falta la imagen de portada: sin ella el artículo se comparte sin miniatura',
+      message: 'Sube una imagen de portada: sin ella el artículo se ve vacío al compartirlo',
       level: 'error',
     });
   } else if (!(post.coverAlt ?? '').trim()) {
     errors.push({
       field: 'coverAlt',
-      message: 'La imagen de portada necesita texto alternativo (alt)',
+      message: 'Describe en una frase qué se ve en la imagen de portada',
       level: 'error',
     });
   }
@@ -101,7 +106,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (imagesWithoutAlt > 0) {
     errors.push({
       field: 'blocks',
-      message: `${imagesWithoutAlt} imagen(es) del contenido no tienen texto alternativo (alt)`,
+      message: `Describe qué se ve en ${imagesWithoutAlt === 1 ? '1 imagen' : `${imagesWithoutAlt} imágenes`} del artículo`,
       level: 'error',
     });
   }
@@ -112,7 +117,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (emptyText > 0) {
     errors.push({
       field: 'blocks',
-      message: `Hay ${emptyText} bloque(s) de texto vacíos. Elimínalos o complétalos`,
+      message: `Hay ${emptyText === 1 ? '1 bloque vacío' : `${emptyText} bloques vacíos`}: escríbelos o bórralos`,
       level: 'error',
     });
   }
@@ -122,14 +127,14 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (metaTitle.length > TITLE_MAX) {
     warnings.push({
       field: 'metaTitle',
-      message: `El título SEO tiene ${metaTitle.length} caracteres; Google corta cerca de ${TITLE_MAX}`,
+      message: `El título para Google es largo (${metaTitle.length} letras): Google corta cerca de ${TITLE_MAX}`,
       level: 'warning',
     });
   }
   if (desc.length > DESC_MAX) {
     warnings.push({
       field: 'metaDescription',
-      message: `La meta descripción tiene ${desc.length} caracteres; se recomienda no pasar de ${DESC_MAX}`,
+      message: `El texto para Google es largo (${desc.length} letras): Google corta cerca de ${DESC_MAX}`,
       level: 'warning',
     });
   }
@@ -137,7 +142,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (post.wordCount < MIN_WORDS) {
     warnings.push({
       field: 'content',
-      message: `El artículo tiene ${post.wordCount} palabras. Por debajo de ${MIN_WORDS} suele considerarse contenido superficial`,
+      message: `El artículo tiene ${post.wordCount} palabras. Con más de ${MIN_WORDS} Google lo valora más`,
       level: 'warning',
     });
   }
@@ -146,7 +151,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (headings.length === 0) {
     warnings.push({
       field: 'blocks',
-      message: 'El artículo no tiene subtítulos (H2). Dividir el texto ayuda a Google y al lector',
+      message: 'Agrega algún subtítulo: separa el texto y se lee mejor',
       level: 'warning',
     });
   }
@@ -154,7 +159,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (badHeading) {
     warnings.push({
       field: 'blocks',
-      message: 'Los subtítulos deben ser H2 o H3. El H1 está reservado para el título del artículo',
+      message: 'Usa solo subtítulos de tamaño grande o mediano',
       level: 'warning',
     });
   }
@@ -163,7 +168,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (firstLevel === 3) {
     warnings.push({
       field: 'blocks',
-      message: 'El primer subtítulo es un H3: la jerarquía debería empezar en H2',
+      message: 'El primer subtítulo debería ser grande; los medianos van dentro de él',
       level: 'warning',
     });
   }
@@ -172,28 +177,28 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (!keyword) {
     warnings.push({
       field: 'focusKeyword',
-      message: 'No definiste una palabra clave objetivo, así no podemos verificar su uso',
+      message: 'Escribe cómo te buscaría la gente en Google (por ejemplo: gestión comunal)',
       level: 'warning',
     });
   } else {
     if (!post.title.toLowerCase().includes(keyword)) {
       warnings.push({
         field: 'title',
-        message: `La palabra clave "${keyword}" no aparece en el título`,
+        message: `Usa "${keyword}" en el título`,
         level: 'warning',
       });
     }
     if (!post.slug.toLowerCase().includes(keyword.replace(/\s+/g, '-'))) {
       warnings.push({
         field: 'slug',
-        message: `La palabra clave "${keyword}" no aparece en la URL`,
+        message: `Usa "${keyword}" en el título para que también quede en la dirección`,
         level: 'warning',
       });
     }
     if (!desc.toLowerCase().includes(keyword)) {
       warnings.push({
         field: 'metaDescription',
-        message: `La palabra clave "${keyword}" no aparece en la meta descripción`,
+        message: `Usa "${keyword}" en el texto para Google`,
         level: 'warning',
       });
     }
@@ -202,7 +207,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (post.slug.length > 70) {
     warnings.push({
       field: 'slug',
-      message: 'La URL es muy larga; las URLs cortas y descriptivas rinden mejor',
+      message: 'El título es muy largo y la dirección queda larga: intenta acortarlo',
       level: 'warning',
     });
   }
@@ -213,7 +218,7 @@ export function auditPost(post: AuditablePost): SeoAudit {
   if (videosWithoutCaption > 0) {
     warnings.push({
       field: 'blocks',
-      message: `${videosWithoutCaption} video(s) sin descripción. El texto que los acompaña es lo que Google puede leer`,
+      message: `Agrega una descripción a ${videosWithoutCaption === 1 ? '1 video' : `${videosWithoutCaption} videos`}: Google no puede ver el video, solo leer el texto`,
       level: 'warning',
     });
   }

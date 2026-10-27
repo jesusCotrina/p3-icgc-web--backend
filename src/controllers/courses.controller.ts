@@ -31,6 +31,11 @@ const courseSchema = z.object({
   instructor: z.string().trim().max(200).nullable().optional().transform((v) => v || null),
   /** Se anuncia en la web con el aviso "¡Próximamente!" */
   comingSoon: z.boolean().default(false),
+  /** Precio en soles: todo curso lo muestra en su tarjeta y en su página */
+  price: z.coerce
+    .number({ invalid_type_error: 'Indica el precio del curso' })
+    .positive('Indica el precio del curso')
+    .max(99999999),
   coverImageId: z.string().nullable().optional(),
   coverAlt: z.string().trim().max(300).nullable().optional(),
   position: z.coerce.number().int().min(0).default(0),
@@ -61,6 +66,16 @@ export const listPublicCourses = asyncHandler(async (_req, res) => {
     orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
   });
   res.json(rows.map(toCourseDTO));
+});
+
+/** Página propia del curso (/cursos/<slug>). 404 real si no existe o está oculto. */
+export const getPublicCourse = asyncHandler(async (req, res) => {
+  const row = await prisma.course.findFirst({
+    where: { slug: req.params.slug!, isPublished: true },
+    include,
+  });
+  if (!row) throw notFound('El curso no existe o no está publicado');
+  res.json(toCourseDTO(row));
 });
 
 // ───────────────────────────── Gestor ─────────────────────────────

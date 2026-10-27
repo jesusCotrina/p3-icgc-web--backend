@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { removeFile, toRelativePath } from '../middleware/upload';
 import { toMediaDTO } from '../services/mappers';
+import { env } from '../config/env';
 import { asyncHandler, badRequest, notFound } from '../utils/http';
 
 /** Lee ancho/alto de una imagen. Necesario para que <Image> no cause CLS (Core Web Vitals). */
@@ -107,6 +108,39 @@ export const updateMedia = asyncHandler(async (req, res) => {
   res.json(toMediaDTO(media));
 });
 
+/** Miniaturas: fuera de images/ para no mezclarse con los originales. */
+const miniaturasDir = path.join(env.uploadDir, '.miniaturas');
+const miniaturaDe = (id: string) => path.join(miniaturasDir, `${id}.webp`);
+
+/**
+ * Miniatura de 320 px en WebP para listar la biblioteca del gestor sin bajar
+ * cada foto en tamaño completo. Se genera la primera vez que se pide y luego
+ * se sirve del disco. Es pública igual que el original (/uploads).
+ */
+export const mediaThumbnail = asyncHandler(async (req, res) => {
+  const id = req.params.id!;
+  const media = await prisma.media.findUnique({ where: { id } });
+  if (!media || media.kind !== 'IMAGE') throw notFound('La imagen no existe');
+
+  const destino = miniaturaDe(media.id);
+  try {
+    await fs.access(destino);
+  } catch {
+    const original = path.join(env.uploadDir, ...media.relativePath.split('/'));
+    try {
+      await fs.mkdir(miniaturasDir, { recursive: true });
+      await sharp(original).resize({ width: 320, withoutEnlargement: true }).webp({ quality: 70 }).toFile(destino);
+    } catch {
+      // Formato que sharp no procesa: se usa el original
+      res.redirect(toMediaDTO(media)!.url);
+      return;
+    }
+  }
+
+  res.setHeader('Cache-Control', env.isProd ? 'public, max-age=2592000, immutable' : 'no-cache');
+  res.sendFile(destino);
+});
+
 export const deleteMedia = asyncHandler(async (req, res) => {
   const id = req.params.id!;
   const media = await prisma.media.findUnique({ where: { id } });
@@ -115,6 +149,7 @@ export const deleteMedia = asyncHandler(async (req, res) => {
   // Primero la fila (las relaciones quedan en SetNull), luego el archivo físico
   await prisma.media.delete({ where: { id } });
   await removeFile(media.relativePath);
+  await fs.rm(miniaturaDe(media.id), { force: true });
 
   res.json({ ok: true, message: 'Archivo eliminado' });
 });
@@ -122,7 +157,6 @@ export const deleteMedia = asyncHandler(async (req, res) => {
 /** Diagnóstico: detecta filas cuyo archivo ya no está en disco. */
 export const checkOrphans = asyncHandler(async (_req, res) => {
   const all = await prisma.media.findMany({ select: { id: true, relativePath: true } });
-  const { env } = await import('../config/env');
 
   const missing: string[] = [];
   for (const m of all) {
