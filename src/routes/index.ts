@@ -47,6 +47,7 @@ router.get('/public/courses', courses.listPublicCourses);
 router.get('/public/courses/:slug', courses.getPublicCourse);
 router.get('/public/media/:id/thumb', media.mediaThumbnail);
 router.get('/public/projects', projects.listPublicProjects);
+router.get('/public/projects/:slug', projects.getPublicProject);
 
 // Formulario de contacto: 5 envíos cada 15 minutos por IP, contra el spam
 const contactLimiter = rateLimit({

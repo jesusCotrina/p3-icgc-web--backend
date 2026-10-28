@@ -75,6 +75,16 @@ export const listPublicProjects = asyncHandler(async (_req, res) => {
   res.json(rows.map(toProjectDTO));
 });
 
+/** Página propia del proyecto (/proyectos/<slug>). 404 real si no existe o está oculto. */
+export const getPublicProject = asyncHandler(async (req, res) => {
+  const row = await prisma.project.findFirst({
+    where: { slug: req.params.slug!, isPublished: true },
+    include,
+  });
+  if (!row) throw notFound('El proyecto no existe o no está publicado');
+  res.json(toProjectDTO(row));
+});
+
 // ───────────────────────────── Gestor ─────────────────────────────
 
 export const listProjects = asyncHandler(async (_req, res) => {

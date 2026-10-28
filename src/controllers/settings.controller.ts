@@ -54,7 +54,14 @@ const updateSchema = z.object({
   linkedinUrl: z.string().url().nullable().optional().or(z.literal('')),
   tiktokUrl: z.string().url().nullable().optional().or(z.literal('')),
 
-  googleAnalyticsId: z.string().max(40).nullable().optional(),
+  // Tag Manager (GTM-…) o Analytics (G-…): la web lo escribe dentro de un <script>
+  googleAnalyticsId: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^(GTM|G|AW)-[A-Z0-9]{4,20}$/, 'El código de Google debe tener la forma GTM-XXXXXXX o G-XXXXXXXXXX')
+    .nullable()
+    .optional(),
   googleSiteVerification: z.string().max(200).nullable().optional(),
 
   // Cifras del hero. Enteros: el frontend se encarga del "+" y de animarlas.
