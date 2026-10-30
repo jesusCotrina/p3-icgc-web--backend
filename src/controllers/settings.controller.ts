@@ -81,6 +81,11 @@ const updateSchema = z.object({
     .max(30)
     .transform((items) => items.filter((i) => i.period || i.text))
     .optional(),
+  leaderEducation: z
+    .array(z.string().max(200))
+    .max(30)
+    .transform((items) => items.map((t) => t.trim()).filter(Boolean))
+    .optional(),
 });
 
 export const updateSettings = asyncHandler(async (req, res) => {

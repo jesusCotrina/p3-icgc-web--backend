@@ -142,6 +142,7 @@ export function toSettingsDTO(s: any): SiteSettingsDTO {
     leaderPhoto: toMediaDTO(s.leaderPhoto),
     leaderPhotoAlt: s.leaderPhotoAlt ?? null,
     leaderCareer: Array.isArray(s.leaderCareer) ? s.leaderCareer : [],
+    leaderEducation: s.leaderEducation ?? [],
     updatedAt: s.updatedAt.toISOString(),
   };
 }
@@ -195,6 +196,7 @@ export function toProjectDTO(p: any): ProjectDTO {
     id: p.id,
     slug: p.slug,
     title: p.title,
+    company: p.company ?? '',
     duration: p.duration,
     status: p.status,
     capital: p.capital,
@@ -203,6 +205,7 @@ export function toProjectDTO(p: any): ProjectDTO {
     implementingEntity: p.implementingEntity,
     area: p.area,
     objective: p.objective,
+    items: Array.isArray(p.items) ? p.items : [],
     achievements: p.achievements ?? [],
     communitiesBenefited: p.communitiesBenefited,
     region: p.region,

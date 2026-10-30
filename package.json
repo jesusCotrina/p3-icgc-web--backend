@@ -13,6 +13,9 @@
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "seed": "tsx scripts/seed.ts",
+    "cargar:proyectos": "tsx scripts/cargar-proyectos.ts",
+    "cargar:cursos": "tsx scripts/cargar-cursos.ts",
+    "cargar:lider": "tsx scripts/cargar-lider.ts",
     "typecheck": "tsc --noEmit"
   },
   "prisma": {

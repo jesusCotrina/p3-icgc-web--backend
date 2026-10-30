@@ -254,6 +254,8 @@ model SiteSettings {
   leaderPhotoAlt   String?
   /// Trayectoria: [{ period: "2015 – 2020", text: "..." }], en orden
   leaderCareer     Json    @default("[]")
+  /// Formación especializada: "Curso — Institución", una por elemento, en orden
+  leaderEducation  String[] @default([])
 
   updatedAt       DateTime @updatedAt
 
@@ -320,21 +322,27 @@ enum ProjectStatus {
   STOPPED
 }
 
-/// Proyecto acompañado por el instituto. Alimenta /proyectos, las tarjetas
-/// del inicio, el mapa "Nuestra huella" y las cifras del hero.
+/// Experiencia del instituto con una empresa (minera u otra) y una comunidad o
+/// empresa comunal. Alimenta /proyectos, las tarjetas del inicio y las cifras.
+/// Desde oct. 2026 la ficha muestra la lista de trabajos (items); estado,
+/// duración, inversión, área, ejecutor y logros quedan solo por compatibilidad.
 model Project {
   id                   String        @id @default(cuid())
   /// SEO: ancla /proyectos#<slug>
   slug                 String        @unique
   title                String
-  duration             String
-  status               ProjectStatus @default(IN_PROGRESS)
-  capital              String
+  /// Empresa con la que se trabajó (p. ej. "Compañía Minera Raura S.A."): va arriba en la tarjeta
+  company              String        @default("")
+  duration             String        @default("")
+  status               ProjectStatus @default(COMPLETED)
+  capital              String        @default("")
   location             String
   community            String
-  implementingEntity   String
-  area                 String
+  implementingEntity   String        @default("")
+  area                 String        @default("")
   objective            String
+  /// Trabajos realizados: [{ title, description }], en orden
+  items                Json          @default("[]")
   /// Avances y logros: cantidad libre
   achievements         String[]
   /// Suma al total de comunidades del mapa

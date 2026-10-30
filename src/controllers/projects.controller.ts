@@ -13,23 +13,46 @@ const REGION_IDS = PERU_REGIONS.map((r) => r.id) as [string, ...string[]];
 const texto = (campo: string, max = 200) =>
   z.string().trim().min(1, `Completa: ${campo}`).max(max);
 
+/** Un trabajo de la lista; los que llegan vacíos se descartan. */
+const itemSchema = z.object({
+  title: z.string().trim().max(160),
+  description: z.string().trim().max(800),
+});
+
+// Datos que la web ya no muestra: opcionales, se guardan solo si llegan
+const legado = (max: number) => z.string().trim().max(max).optional();
+
 const projectSchema = z
   .object({
     title: z.string().trim().min(5, 'El título debe tener al menos 5 caracteres').max(200),
     slug: z.string().max(90).optional(),
-    duration: texto('duración', 100),
-    status: z.enum(['IN_PROGRESS', 'COMPLETED', 'IN_FORMULATION', 'STOPPED']),
-    capital: texto('capital', 60),
+    company: texto('empresa', 160),
+    duration: legado(100),
+    status: z.enum(['IN_PROGRESS', 'COMPLETED', 'IN_FORMULATION', 'STOPPED']).optional(),
+    capital: legado(60),
     location: texto('ubicación'),
-    community: texto('comunidad'),
-    implementingEntity: texto('entidad implementadora'),
-    area: texto('área que abarca', 120),
-    objective: z.string().trim().min(20, 'El objetivo debe tener al menos 20 caracteres').max(800),
+    community: texto('comunidad o empresa comunal'),
+    implementingEntity: legado(200),
+    area: legado(120),
+    objective: z.string().trim().min(20, 'La descripción debe tener al menos 20 caracteres').max(800),
+    items: z
+      .array(itemSchema)
+      .max(30)
+      .default([])
+      .transform((items) => items.filter((i) => i.title || i.description))
+      .superRefine((items, ctx) => {
+        items.forEach((item, i) => {
+          if (!item.title) {
+            ctx.addIssue({ code: 'custom', message: `Ponle título al trabajo n.º ${i + 1} de la lista` });
+          }
+        });
+      }),
     achievements: z
       .array(z.string().max(300))
       .max(30)
-      .transform((items) => items.map((t) => t.trim()).filter(Boolean)),
-    communitiesBenefited: z.coerce.number().int().min(0).max(10000),
+      .transform((items) => items.map((t) => t.trim()).filter(Boolean))
+      .optional(),
+    communitiesBenefited: z.coerce.number().int().min(0).max(10000).optional(),
     region: z.enum(REGION_IDS, { errorMap: () => ({ message: 'Elige la región del proyecto' }) }),
     // Perú está entre las latitudes 0 y -19 y las longitudes -68 y -82
     latitude: z.number().min(-19).max(0.5).nullable().optional(),

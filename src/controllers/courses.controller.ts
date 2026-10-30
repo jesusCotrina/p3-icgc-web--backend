@@ -31,11 +31,15 @@ const courseSchema = z.object({
   instructor: z.string().trim().max(200).nullable().optional().transform((v) => v || null),
   /** Se anuncia en la web con el aviso "¡Próximamente!" */
   comingSoon: z.boolean().default(false),
-  /** Precio en soles: todo curso lo muestra en su tarjeta y en su página */
-  price: z.coerce
-    .number({ invalid_type_error: 'Indica el precio del curso' })
-    .positive('Indica el precio del curso')
-    .max(99999999),
+  /** Precio en soles; vacío = la web muestra "Consultar" (p. ej. cursos que aún no abren) */
+  price: z.preprocess(
+    (v) => (v === '' || v === undefined ? null : v),
+    z.coerce
+      .number({ invalid_type_error: 'El precio debe ser un número' })
+      .positive('El precio debe ser mayor que cero')
+      .max(99999999)
+      .nullable(),
+  ),
   coverImageId: z.string().nullable().optional(),
   coverAlt: z.string().trim().max(300).nullable().optional(),
   position: z.coerce.number().int().min(0).default(0),

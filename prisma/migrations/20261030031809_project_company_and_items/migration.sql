@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "projects" ADD COLUMN     "company" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "items" JSONB NOT NULL DEFAULT '[]',
+ALTER COLUMN "duration" SET DEFAULT '',
+ALTER COLUMN "status" SET DEFAULT 'COMPLETED',
+ALTER COLUMN "capital" SET DEFAULT '',
+ALTER COLUMN "implementingEntity" SET DEFAULT '',
+ALTER COLUMN "area" SET DEFAULT '';
