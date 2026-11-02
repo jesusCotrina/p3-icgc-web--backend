@@ -342,6 +342,8 @@ model Project {
   area                 String        @default("")
   /// Subtítulo del detalle (p. ej. "Asesoría integral a la Comunidad Campesina de Quichas"); vacío = se muestra la comunidad
   headline             String        @default("")
+  /// Título de la lista de trabajos (p. ej. "Principales responsabilidades y aportes"); vacío = "Servicios brindados"
+  itemsTitle           String        @default("")
   objective            String
   /// Trabajos realizados: [{ title, description }], en orden
   items                Json          @default("[]")

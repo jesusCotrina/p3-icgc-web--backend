@@ -27,6 +27,8 @@ type Experiencia = {
   region: string;
   /** Subtítulo del detalle; sin él se muestra la comunidad */
   headline?: string;
+  /** Título de la lista de trabajos; sin él, "Servicios brindados" */
+  itemsTitle?: string;
   objective: string;
   items: { title: string; description: string }[];
   foto: string;
@@ -95,20 +97,40 @@ const EXPERIENCIAS: Experiencia[] = [
     community: ECOSERMUQ,
     location: 'Oyón, Lima',
     region: 'lima',
+    headline: 'Gestión de Proyectos y Operaciones en ECOSERMUQ',
     objective:
-      'Gerencia de Proyectos y Operaciones de ECOSERMUQ: soporte al desarrollo empresarial y liderazgo en la gestión de proyectos, operaciones y servicios vinculados a la Compañía Minera Raura.',
+      'Durante su desempeño como gerente de Proyectos y Operaciones, impulsó el desarrollo sostenible de ECOSERMUQ y su consolidación como socio estratégico de Minera Raura.',
+    itemsTitle: 'Principales responsabilidades y aportes',
     items: [
       {
-        title: 'Gerencia de proyectos y operaciones',
-        description: 'Dirección de los proyectos y las operaciones de la empresa comunal.',
+        title: 'Dirección de proyectos y operaciones',
+        description:
+          'Gestión de movimiento de tierras, obras civiles, mantenimiento de vías, estabilidad hidrológica, geosintéticos, tuberías HDPE y trabajos en la PTARI y pozos de lodos, con control de costos, plazos, calidad y seguridad.',
       },
       {
         title: 'Desarrollo empresarial',
-        description: 'Soporte al crecimiento y la organización de ECOSERMUQ como empresa.',
+        description:
+          'Fortalecimiento de la organización y eficiencia operativa, promoviendo oportunidades de negocio y relaciones comerciales sostenibles.',
       },
       {
-        title: 'Servicios para el sector minero',
-        description: 'Gestión de los servicios que la empresa comunal presta a la Compañía Minera Raura.',
+        title: 'Gestión de servicios y contratos',
+        description:
+          'Revisión de contratos, términos de referencia y alcances, y coordinación con Minera Raura para atender requerimientos y cumplir compromisos.',
+      },
+      {
+        title: 'Residencia de obras y servicios',
+        description:
+          'Conducción técnica en campo y coordinación del personal, asumiendo funciones de residente cuando fue necesario.',
+      },
+      {
+        title: 'Diálogo y negociación empresarial',
+        description:
+          'Participación en mesas de diálogo con Minera Raura, sustentando propuestas para ampliar oportunidades de negocio y mejorar condiciones comerciales.',
+      },
+      {
+        title: 'Remediación Anamaray',
+        description:
+          'Gestión de los trabajos ejecutados por ECOSERMUQ para la Compañía de Minas Buenaventura en el proyecto de remediación Anamaray.',
       },
     ],
     foto: 'proyecto-2-hd.webp',
@@ -120,16 +142,21 @@ const EXPERIENCIAS: Experiencia[] = [
     community: 'Comunidad Campesina Santa Rosa de Colquijirca',
     location: 'Tinyahuarco, Pasco',
     region: 'pasco',
+    headline:
+      'Participación en la Comisión Negociadora de Santa Rosa de Colquijirca con Compañía de Minas Buenaventura',
     objective:
-      'Participación en la comisión de negociación de tierras y en reuniones orientadas a promover oportunidades para la comunidad y su empresa.',
+      'Comisión negociadora, aportando experiencia profesional al fortalecimiento de la gestión y representación comunal.',
+    itemsTitle: 'Principales responsabilidades y aportes',
     items: [
       {
-        title: 'Comisión de negociación de tierras',
-        description: 'Participación en la comisión que negocia las tierras de la comunidad.',
+        title: 'Negociación de tierras y convenio marco',
+        description:
+          'Participación en la comisión encargada de negociar las tierras comunales y concertar las condiciones para la suscripción del convenio marco con la Compañía de Minas Buenaventura.',
       },
       {
-        title: 'Oportunidades para la comunidad y su empresa',
-        description: 'Reuniones orientadas a promover oportunidades para la comunidad y su empresa comunal.',
+        title: 'Oportunidades para la comunidad y su empresa comunal',
+        description:
+          'Reuniones orientadas a promover oportunidades de negocio y colaboración para fortalecer la empresa comunal y generar beneficios sostenibles para la comunidad.',
       },
     ],
     foto: 'proyecto-3-reunion-colquijirca.webp',
@@ -141,20 +168,25 @@ const EXPERIENCIAS: Experiencia[] = [
     community: ECOSARC,
     location: 'Tinyahuarco, Pasco',
     region: 'pasco',
+    headline: 'Gestión Empresarial en la Empresa Comunal Santa Rosa — ECOSARC',
     objective:
-      'Experiencia profesional como Gerente de Operaciones y Proyectos y presidente del Directorio, en la dirección empresarial y comunal, liderando reuniones y negociaciones orientadas a generar oportunidades de negocio.',
+      'Experiencia en la gestión y fortalecimiento de ECOSARC, empresa comunal prestadora de servicios para Compañía de Minas Buenaventura, impulsando su competitividad y la generación de oportunidades sostenibles para la comunidad.',
+    itemsTitle: 'Principales responsabilidades y aportes',
     items: [
       {
-        title: 'Gerencia de operaciones y proyectos',
-        description: 'Dirección empresarial de ECOSARC como Gerente de Operaciones y Proyectos.',
-      },
-      {
-        title: 'Presidencia del Directorio',
-        description: 'Conducción del Directorio de la empresa comunal.',
+        title: 'Gestión de operaciones y proyectos',
+        description:
+          'Gestión de trabajos en tajo abierto, movimiento de tierras, bombeo, geosintéticos, tuberías HDPE, remediación y obras civiles; y alquiler de maquinaria de línea amarilla, volquetes, camionetas, servicios generales y luminarias.',
       },
       {
         title: 'Negociaciones y oportunidades de negocio',
-        description: 'Liderazgo de reuniones y negociaciones orientadas a generar oportunidades de negocio.',
+        description:
+          'Negociaciones para diversificar los rubros de la empresa, ampliar servicios y generar empleo local, fortaleciendo la gestión contractual y las relaciones comerciales con la minera.',
+      },
+      {
+        title: 'Gobierno y fortalecimiento empresarial',
+        description:
+          'Conducción del Directorio durante dos periodos y actualización del estatuto según las necesidades de la empresa, promoviendo el cumplimiento normativo y una gestión ordenada y sostenible.',
       },
     ],
     foto: 'proyecto-4-hd.webp',
@@ -166,16 +198,25 @@ const EXPERIENCIAS: Experiencia[] = [
     community: ECOSARC,
     location: 'Tinyahuarco, Pasco',
     region: 'pasco',
+    headline: 'Gestión Empresarial en la Empresa Comunal Santa Rosa — ECOSARC',
     objective:
-      'Experiencia profesional y dirigencial en gestión de proyectos y operaciones de la empresa comunal, liderando reuniones y negociaciones orientadas a generar oportunidades de negocio.',
+      'Experiencia en la gestión y fortalecimiento de ECOSARC, prestadora de servicios para Minera El Brocal, impulsando el desarrollo de sus operaciones y nuevas oportunidades de negocio.',
+    itemsTitle: 'Principales responsabilidades y aportes',
     items: [
       {
-        title: 'Gestión de proyectos y operaciones',
-        description: 'Experiencia profesional y dirigencial en los proyectos y operaciones de la empresa comunal.',
+        title: 'Gestión de operaciones y proyectos',
+        description:
+          'Gestión y consolidación de trabajos en tajo abierto, bombeo, instalación de geosintéticos y tuberías HDPE, remediación y obras civiles.',
       },
       {
-        title: 'Reuniones y negociaciones',
-        description: 'Liderazgo de reuniones y negociaciones orientadas a generar oportunidades de negocio.',
+        title: 'Negociaciones y oportunidades de negocio',
+        description:
+          'Liderazgo de reuniones y negociaciones para ampliar servicios, fortalecer la gestión contractual y afianzar las relaciones comerciales con Minera El Brocal.',
+      },
+      {
+        title: 'Gobierno y fortalecimiento empresarial',
+        description:
+          'Conducción del Directorio durante dos periodos, promoviendo el cumplimiento de los estatutos y la normativa aplicable, así como una gestión ordenada y orientada al desarrollo sostenible.',
       },
     ],
     foto: 'proyecto-5-hd.webp',
@@ -187,20 +228,30 @@ const EXPERIENCIAS: Experiencia[] = [
     community: 'Comunidad Campesina de Pararín',
     location: 'Huarmey, Áncash',
     region: 'ancash',
+    headline: 'Capacitación en Gestión Empresarial en la Comunidad Campesina de Pararín',
     objective:
-      'Capacitación sobre marco normativo para la constitución, oportunidades de negocio y gestión de empresas comunales.',
+      'Por encargo de Paltarumi S.A.C., brindamos charlas en las distintas bases de la Comunidad Campesina de Pararín para fortalecer su organización y gestión empresarial, compartiendo experiencias exitosas y estrategias de negociación.',
+    itemsTitle: 'Principales responsabilidades y aportes',
     items: [
       {
-        title: 'Marco normativo para constituir la empresa comunal',
-        description: 'Capacitación sobre las normas para constituir una empresa comunal.',
+        title: 'Constitución y reactivación de la empresa comunal',
+        description:
+          'Capacitación sobre requisitos, marco normativo y procedimientos para constituir o reactivar la empresa comunal.',
       },
       {
-        title: 'Oportunidades de negocio',
-        description: 'Identificación de oportunidades de negocio para la comunidad.',
+        title: 'Revisión de estatutos y recomendaciones',
+        description:
+          'Revisión de los estatutos vigentes de la comunidad y su empresa comunal, con recomendaciones técnicas y legales para su actualización conforme a sus necesidades y la normativa aplicable.',
       },
       {
-        title: 'Gestión de empresas comunales',
-        description: 'Herramientas para administrar y hacer crecer la empresa comunal.',
+        title: 'Procedimientos administrativos para el funcionamiento',
+        description:
+          'Orientación sobre trámites, documentación y requisitos administrativos necesarios para el funcionamiento de la empresa comunal.',
+      },
+      {
+        title: 'Experiencias exitosas y estrategias de negociación',
+        description:
+          'Presentación de experiencias de empresas comunales exitosas y estrategias de negociación con empresas privadas de la zona de influencia, promoviendo oportunidades de negocio y relaciones comerciales sostenibles.',
       },
     ],
     foto: 'proyecto-6-hd.webp',
@@ -316,6 +367,7 @@ async function main() {
       location: e.location,
       region: e.region,
       headline: e.headline ?? '',
+      itemsTitle: e.itemsTitle ?? '',
       objective: e.objective,
       items: e.items as Prisma.InputJsonValue,
       coverImageId: foto.id,

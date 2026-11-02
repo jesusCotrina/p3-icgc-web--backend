@@ -205,6 +205,7 @@ export function toProjectDTO(p: any): ProjectDTO {
     implementingEntity: p.implementingEntity,
     area: p.area,
     headline: p.headline ?? '',
+    itemsTitle: p.itemsTitle ?? '',
     objective: p.objective,
     items: Array.isArray(p.items) ? p.items : [],
     achievements: p.achievements ?? [],
