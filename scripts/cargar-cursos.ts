@@ -39,6 +39,8 @@ type Curso = {
   summary: string;
   topics: string[];
   objective: string;
+  /** Archivo en scripts/datos/cursos (sin .webp). Nombre nuevo = foto nueva: evita caché */
+  foto: string;
   alt: string;
   /** Solo uno lleva precio, para ver cómo queda en la web */
   price?: number;
@@ -61,7 +63,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Al terminar podrás conducir la gestión de tu comunidad conforme a la ley y a su estatuto: asambleas válidas, órganos de gobierno que cumplen sus funciones y cuentas claras ante los comuneros.',
-    alt: 'Comuneros y comuneras reunidos en una foto grupal al cierre de una capacitación en gestión comunal',
+    foto: 'asamblea-comunal-gestion',
+    alt: 'Asamblea comunal en un salón de la sierra: dos facilitadores muestran un documento y los comuneros levantan la mano para votar',
     price: 100,
   },
   {
@@ -79,7 +82,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Sabrás qué hace falta para constituir la empresa de tu comunidad, en qué orden hacer los trámites y cómo organizarla desde el primer día para que pueda contratar y crecer.',
-    alt: 'Comuneros con sombrero junto a un asesor del ICGC en un terreno de la sierra',
+    foto: 'organizando-empresa-comunal',
+    alt: 'Asesora y tres comuneros revisan en una mesa el organigrama de su empresa comunal, con una laptop y carpetas',
   },
   {
     slug: 'administracion-de-empresas-comunales',
@@ -96,7 +100,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Te permitirá ordenar el día a día de la empresa comunal: personal, compras, documentos e informes, con una coordinación clara entre la gerencia, el directorio y la comunidad.',
-    alt: 'Dirigentes y gerentes sentados a una mesa de reunión de trabajo',
+    foto: 'equipo-coordinando-empresa-comunal',
+    alt: 'Equipo de una empresa comunal trabajando en su oficina: dos personas frente a una laptop y otras revisando archivadores y documentos',
   },
   {
     slug: 'negociacion-y-manejo-de-conflictos',
@@ -113,7 +118,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Aprenderás a preparar y conducir una negociación con empresas y autoridades, a dejar los acuerdos por escrito y a hacer seguimiento para que se cumplan, sin fracturar a la comunidad.',
-    alt: 'Dirigentes y asesores revisando mapas y documentos en una mesa de trabajo',
+    foto: 'dialogo-comunitario-tierras',
+    alt: 'Mesa de diálogo entre comuneros con sombrero y representantes de una empresa, con un mapa de tierras sobre la mesa',
   },
   {
     slug: 'gestion-de-proyectos-comunales',
@@ -130,7 +136,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Podrás planificar y controlar un proyecto de la comunidad o de su empresa de principio a fin: costos, plazos y calidad, respetando lo que mandan los reglamentos comunales.',
-    alt: 'Ingenieros con casco y chaleco revisando planos en plena obra',
+    foto: 'planificacion-comunitaria-agua-rural',
+    alt: 'Cuatro personas con casco y chaleco revisan planos sobre una mesa en la obra de un reservorio de agua en la sierra',
   },
   {
     slug: 'licitaciones-y-administracion-de-contratos',
@@ -147,7 +154,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Te prepara para que la empresa comunal compita en licitaciones con propuestas sólidas y administre sus contratos sin perder dinero en valorizaciones, adicionales o penalidades.',
-    alt: 'Asesor del ICGC exponiendo un cuadro de compromisos proyectado ante dirigentes',
+    foto: 'preparando-licitacion-en-equipo',
+    alt: 'Asesora señala documentos de una licitación mientras cuatro dirigentes comunales revisan carpetas y una laptop',
   },
   {
     slug: 'planeamiento-financiero-y-control-de-gestion',
@@ -164,7 +172,8 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Aprenderás a planificar el dinero de la comunidad o de su empresa, a anticipar faltas de caja y a medir resultados con indicadores para decidir con datos.',
-    alt: 'Trabajadores con chaleco en una sala de capacitación frente a una presentación proyectada',
+    foto: 'planificacion-financiera-comunidad',
+    alt: 'Asesora muestra en una laptop gráficos financieros a una pareja de comuneros, con calculadora y reportes sobre la mesa',
   },
   {
     slug: 'seguridad-salud-ocupacional-y-gestion-ambiental',
@@ -181,14 +190,15 @@ const CURSOS: Curso[] = [
     ],
     objective:
       'Te ayudará a que la empresa comunal cumpla las exigencias de seguridad, salud y ambiente que piden las mineras y constructoras para contratar, y a prevenir accidentes en sus operaciones.',
-    alt: 'Trabajador con traje de protección y casco junto a volquetes en una vía minera',
+    foto: 'capacitacion-seguridad-muestreo-ambiental',
+    alt: 'Capacitación en campo junto a un río: un instructor con casco y guantes enseña a tomar muestras de agua a seis trabajadores con chalecos',
   },
 ];
 
 /** Copia la foto a uploads/images (o la reemplaza si cambió) y la registra en Multimedia. */
-async function registrarFoto(slug: string, alt: string, userId: string | null) {
-  const origen = path.join(DATOS, `${slug}.webp`);
-  const filename = `icgc-curso-${slug}.webp`;
+async function registrarFoto(foto: string, alt: string, userId: string | null) {
+  const origen = path.join(DATOS, `${foto}.webp`);
+  const filename = `icgc-curso-${foto}.webp`;
   const destino = path.join(env.imagesDir, filename);
   fs.mkdirSync(env.imagesDir, { recursive: true });
   if (!fs.existsSync(destino) || fs.statSync(destino).size !== fs.statSync(origen).size) {
@@ -197,7 +207,7 @@ async function registrarFoto(slug: string, alt: string, userId: string | null) {
   const { width, height } = await sharp(destino).metadata();
   const datos = {
     kind: 'IMAGE' as const,
-    originalName: `${slug}.webp`,
+    originalName: `${foto}.webp`,
     mimeType: 'image/webp',
     sizeBytes: BigInt(fs.statSync(destino).size),
     relativePath: `images/${filename}`,
@@ -216,7 +226,7 @@ async function main() {
   const admin = await prisma.user.findFirst({ where: { role: 'ADMIN' }, select: { id: true } });
 
   for (const [posicion, c] of CURSOS.entries()) {
-    const foto = await registrarFoto(c.slug, c.alt, admin?.id ?? null);
+    const foto = await registrarFoto(c.foto, c.alt, admin?.id ?? null);
     const datos = {
       ...COMUN,
       name: c.name,
