@@ -340,6 +340,8 @@ model Project {
   community            String
   implementingEntity   String        @default("")
   area                 String        @default("")
+  /// Subtítulo del detalle (p. ej. "Asesoría integral a la Comunidad Campesina de Quichas"); vacío = se muestra la comunidad
+  headline             String        @default("")
   objective            String
   /// Trabajos realizados: [{ title, description }], en orden
   items                Json          @default("[]")

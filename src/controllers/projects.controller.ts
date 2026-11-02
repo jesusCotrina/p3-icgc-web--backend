@@ -34,6 +34,7 @@ const projectSchema = z
     community: texto('comunidad o empresa comunal'),
     implementingEntity: legado(200),
     area: legado(120),
+    headline: z.string().trim().max(200).optional(),
     objective: z.string().trim().min(20, 'La descripción debe tener al menos 20 caracteres').max(800),
     items: z
       .array(itemSchema)

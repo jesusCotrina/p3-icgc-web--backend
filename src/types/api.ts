@@ -307,6 +307,8 @@ export interface ProjectDTO {
   community: string;
   implementingEntity: string;
   area: string;
+  /** Subtítulo del detalle; vacío = se muestra la comunidad */
+  headline: string;
   objective: string;
   /** Trabajos realizados, en orden */
   items: ProjectItem[];

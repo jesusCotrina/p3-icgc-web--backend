@@ -25,6 +25,8 @@ type Experiencia = {
   community: string;
   location: string;
   region: string;
+  /** Subtítulo del detalle; sin él se muestra la comunidad */
+  headline?: string;
   objective: string;
   items: { title: string; description: string }[];
   foto: string;
@@ -49,16 +51,39 @@ const EXPERIENCIAS: Experiencia[] = [
     community: 'Comunidad Campesina de Quichas',
     location: 'Oyón, Lima',
     region: 'lima',
+    headline: 'Asesoría integral a la Comunidad Campesina de Quichas',
     objective:
-      'Asesoría y soporte para el fortalecimiento de la gestión comunal, así como acompañamiento en mesas de diálogo y procesos de negociación con la Compañía Minera Raura.',
+      'Fortalecemos la gestión de la comunidad y promovemos oportunidades para su población y sus empresas, con respeto a sus derechos y enfoque de sostenibilidad.',
     items: [
       {
         title: 'Fortalecimiento de la gestión comunal',
-        description: 'Asesoría y soporte a la Comunidad Campesina de Quichas para fortalecer su gestión comunal.',
+        description:
+          'Asesoría a la directiva en organización, toma de decisiones y seguimiento de acuerdos conforme a la normativa comunal.',
       },
       {
         title: 'Mesas de diálogo y negociación',
-        description: 'Acompañamiento en mesas de diálogo y procesos de negociación con la Compañía Minera Raura.',
+        description:
+          'Acompañamiento en negociaciones con Minera Raura y entidades del Estado, revisión de convenios y seguimiento de compromisos.',
+      },
+      {
+        title: 'Coordinación de servicios con Minera Raura',
+        description:
+          'Asesoría en reuniones sobre transporte de concentrado, regado de vías y cantera, abordando condiciones operativas, tarifas y contratos.',
+      },
+      {
+        title: 'Seguimiento y control de la gestión',
+        description:
+          'Reuniones semanales con las áreas de la comunidad para evaluar avances y definir mejoras, responsables y plazos.',
+      },
+      {
+        title: 'Asesoría técnica, administrativa y legal',
+        description:
+          'Soporte a las áreas de la comunidad en operaciones, administración, contratos y cumplimiento de obligaciones.',
+      },
+      {
+        title: 'Gestión ambiental y seguridad laboral',
+        description:
+          'Revisión documental y seguimiento de observaciones para orientar el cumplimiento de normas ambientales, de seguridad y salud en el trabajo.',
       },
     ],
     foto: 'proyecto-1-hd.webp',
@@ -290,6 +315,7 @@ async function main() {
       community: e.community,
       location: e.location,
       region: e.region,
+      headline: e.headline ?? '',
       objective: e.objective,
       items: e.items as Prisma.InputJsonValue,
       coverImageId: foto.id,
