@@ -107,8 +107,8 @@ const EXPERIENCIAS: Experiencia[] = [
         description: 'Reuniones orientadas a promover oportunidades para la comunidad y su empresa comunal.',
       },
     ],
-    foto: 'proyecto-3-hd.webp',
-    alt: 'Dirigentes comunales y representantes sentados a una mesa de reunión de trabajo',
+    foto: 'proyecto-3-reunion-colquijirca.webp',
+    alt: 'Reunión de trabajo con dirigentes de la Comunidad Campesina Santa Rosa de Colquijirca, sentados a una mesa larga en una sala de reuniones',
   },
   {
     title: 'Minas Buenaventura y la empresa comunal ECOSARC de Santa Rosa',
