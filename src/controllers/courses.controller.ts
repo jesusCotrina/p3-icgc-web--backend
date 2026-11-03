@@ -24,10 +24,10 @@ const courseSchema = z.object({
   mode: z.enum(['ONLINE', 'ONSITE', 'BLENDED']),
   material: z.string().trim().min(1).max(120),
   certificate: z.string().trim().min(1).max(120),
-  audience: z.string().trim().min(3, 'Indica a quién va dirigido').max(300),
+  audience: z.string().trim().min(3, 'Indica a quién va dirigido').max(1000),
   topics: listaTextos.refine((t) => t.length > 0, 'Agrega al menos un tema al contenido del programa'),
   // Opcionales: si quedan vacíos, la ficha de /cursos no muestra ese bloque
-  objective: z.string().trim().max(800).nullable().optional().transform((v) => v || null),
+  objective: z.string().trim().max(1200).nullable().optional().transform((v) => v || null),
   instructor: z.string().trim().max(200).nullable().optional().transform((v) => v || null),
   /** Se anuncia en la web con el aviso "¡Próximamente!" */
   comingSoon: z.boolean().default(false),

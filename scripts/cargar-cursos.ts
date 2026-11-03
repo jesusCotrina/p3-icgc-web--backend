@@ -28,7 +28,6 @@ const COMUN = {
   mode: 'ONLINE' as const,
   material: 'Material digital descargable',
   certificate: 'Certificado del ICGC',
-  audience: 'Dirigentes, comuneros y trabajadores de comunidades campesinas y empresas comunales',
   comingSoon: true,
   isPublished: true,
 };
@@ -38,7 +37,10 @@ type Curso = {
   name: string;
   summary: string;
   topics: string[];
-  objective: string;
+  /** Qué aprenderá el alumno, un aprendizaje por línea */
+  objective: string[];
+  /** A quién va dirigido, un público por línea */
+  audience: string[];
   /** Archivo en scripts/datos/cursos (sin .webp). Nombre nuevo = foto nueva: evita caché */
   foto: string;
   alt: string;
@@ -61,8 +63,21 @@ const CURSOS: Curso[] = [
       'Transparencia y rendición de cuentas ante la asamblea',
       'Toma de decisiones y seguimiento de acuerdos',
     ],
-    objective:
-      'Al terminar podrás conducir la gestión de tu comunidad conforme a la ley y a su estatuto: asambleas válidas, órganos de gobierno que cumplen sus funciones y cuentas claras ante los comuneros.',
+    objective: [
+      'Aplicar la Ley General de Comunidades Campesinas y su reglamento en la gestión diaria',
+      'Elaborar y actualizar el estatuto y los reglamentos internos de la comunidad',
+      'Convocar y conducir asambleas válidas, con quórum y acuerdos bien registrados',
+      'Distinguir las funciones y los límites de la asamblea, la junta directiva y los comités',
+      'Rendir cuentas con transparencia y tomar decisiones con respaldo de los comuneros',
+    ],
+    audience: [
+      'Presidentes, directivos y miembros de la junta directiva comunal',
+      'Integrantes de comités especializados y fiscales de la comunidad',
+      'Comuneros y comuneras empadronados que participan en la asamblea',
+      'Nuevos dirigentes que asumen el cargo por primera vez',
+      'Profesionales y técnicos que asesoran a comunidades campesinas',
+      'Funcionarios públicos y de empresas que se relacionan con comunidades',
+    ],
     foto: 'asamblea-comunal-gestion',
     alt: 'Asamblea comunal en un salón de la sierra: dos facilitadores muestran un documento y los comuneros levantan la mano para votar',
     price: 100,
@@ -80,8 +95,20 @@ const CURSOS: Curso[] = [
       'Estructura organizacional y funciones del personal clave',
       'Identificación de oportunidades de negocio',
     ],
-    objective:
-      'Sabrás qué hace falta para constituir la empresa de tu comunidad, en qué orden hacer los trámites y cómo organizarla desde el primer día para que pueda contratar y crecer.',
+    objective: [
+      'Elegir el tipo de empresa comunal que mejor se adapta a tu comunidad',
+      'Cumplir los requisitos y trámites de constitución, en el orden correcto',
+      'Redactar el estatuto y definir la estructura de gobierno de la empresa',
+      'Organizar la administración desde el primer día para poder contratar y crecer',
+      'Identificar oportunidades de negocio con empresas privadas y el Estado',
+    ],
+    audience: [
+      'Directivos comunales que impulsan la creación de una empresa comunal',
+      'Comuneros y comuneras interesados en emprender desde la comunidad',
+      'Gerentes y administradores designados para la nueva empresa',
+      'Contadores, abogados y asesores de comunidades campesinas',
+      'Organizaciones y programas que promueven el desarrollo económico comunal',
+    ],
     foto: 'organizando-empresa-comunal',
     alt: 'Asesora y tres comuneros revisan en una mesa el organigrama de su empresa comunal, con una laptop y carpetas',
   },
@@ -98,8 +125,20 @@ const CURSOS: Curso[] = [
       'Informes de gestión para el directorio y la comunidad',
       'Coordinación y comunicación interna',
     ],
-    objective:
-      'Te permitirá ordenar el día a día de la empresa comunal: personal, compras, documentos e informes, con una coordinación clara entre la gerencia, el directorio y la comunidad.',
+    objective: [
+      'Organizar el personal: contratos, planillas, horarios y evaluación',
+      'Manejar compras, almacén y logística con control de costos',
+      'Llevar el control documentario y los informes a la comunidad',
+      'Coordinar con claridad entre la gerencia, el directorio y la asamblea',
+      'Cumplir las obligaciones laborales, tributarias y legales de la empresa',
+    ],
+    audience: [
+      'Gerentes y administradores de empresas comunales',
+      'Miembros del directorio y de la junta de vigilancia',
+      'Responsables de personal, logística y administración',
+      'Asistentes administrativos y de oficina técnica',
+      'Dirigentes comunales que supervisan a la empresa',
+    ],
     foto: 'equipo-coordinando-empresa-comunal',
     alt: 'Equipo de una empresa comunal trabajando en su oficina: dos personas frente a una laptop y otras revisando archivadores y documentos',
   },
@@ -116,8 +155,20 @@ const CURSOS: Curso[] = [
       'Redacción de convenios y actas de acuerdo',
       'Seguimiento y cumplimiento de compromisos',
     ],
-    objective:
-      'Aprenderás a preparar y conducir una negociación con empresas y autoridades, a dejar los acuerdos por escrito y a hacer seguimiento para que se cumplan, sin fracturar a la comunidad.',
+    objective: [
+      'Preparar una negociación: información, objetivos, equipo y estrategia',
+      'Conducir mesas de diálogo y negociar tierras, servidumbres y convenios',
+      'Redactar acuerdos claros y hacer seguimiento al cumplimiento de los compromisos',
+      'Prevenir y manejar conflictos sin fracturar a la comunidad',
+      'Conocer el marco legal de la consulta, los derechos colectivos y el ambiente',
+    ],
+    audience: [
+      'Presidentes y directivos comunales que negocian con empresas y el Estado',
+      'Integrantes de comisiones negociadoras y mesas de diálogo',
+      'Gerentes de empresas comunales que firman convenios y contratos',
+      'Profesionales de relaciones comunitarias de empresas mineras y constructoras',
+      'Funcionarios públicos que participan en procesos de diálogo',
+    ],
     foto: 'dialogo-comunitario-tierras',
     alt: 'Mesa de diálogo entre comuneros con sombrero y representantes de una empresa, con un mapa de tierras sobre la mesa',
   },
@@ -134,8 +185,20 @@ const CURSOS: Curso[] = [
       'Control de calidad (QA/QC) e indicadores',
       'Cierre y transferencia del proyecto a la comunidad',
     ],
-    objective:
-      'Podrás planificar y controlar un proyecto de la comunidad o de su empresa de principio a fin: costos, plazos y calidad, respetando lo que mandan los reglamentos comunales.',
+    objective: [
+      'Planificar un proyecto de principio a fin: alcance, cronograma y responsables',
+      'Elaborar y revisar expedientes técnicos, costos y presupuestos',
+      'Organizar la oficina técnica y controlar avance, calidad y plazos',
+      'Cumplir los reglamentos de la comunidad en cada etapa del proyecto',
+      'Informar a la asamblea con reportes claros y sustentados',
+    ],
+    audience: [
+      'Directivos comunales y comités de obras y proyectos',
+      'Gerentes y jefes de proyecto de empresas comunales',
+      'Residentes, supervisores y personal de oficina técnica',
+      'Ingenieros, técnicos y profesionales que trabajan con comunidades',
+      'Responsables de proyectos financiados con fondos comunales, mineros o públicos',
+    ],
     foto: 'planificacion-comunitaria-agua-rural',
     alt: 'Cuatro personas con casco y chaleco revisan planos sobre una mesa en la obra de un reservorio de agua en la sierra',
   },
@@ -152,8 +215,20 @@ const CURSOS: Curso[] = [
       'Valorizaciones, adicionales y ampliaciones de plazo',
       'Cierre del contrato y conformidad del servicio',
     ],
-    objective:
-      'Te prepara para que la empresa comunal compita en licitaciones con propuestas sólidas y administre sus contratos sin perder dinero en valorizaciones, adicionales o penalidades.',
+    objective: [
+      'Interpretar términos de referencia, bases y alcances de trabajo',
+      'Preparar propuestas técnicas y económicas competitivas',
+      'Administrar el contrato: valorizaciones, adicionales, ampliaciones y penalidades',
+      'Cumplir los requisitos de homologación y documentación que exigen las empresas',
+      'Cerrar contratos sin pérdidas y cuidando la relación comercial',
+    ],
+    audience: [
+      'Gerentes y responsables comerciales de empresas comunales',
+      'Personal de oficina técnica que prepara propuestas y valorizaciones',
+      'Directivos comunales que aprueban contratos y convenios',
+      'Administradores de contratos con empresas mineras, privadas y el Estado',
+      'Profesionales y asesores de empresas comunales',
+    ],
     foto: 'preparando-licitacion-en-equipo',
     alt: 'Asesora señala documentos de una licitación mientras cuatro dirigentes comunales revisan carpetas y una laptop',
   },
@@ -170,8 +245,20 @@ const CURSOS: Curso[] = [
       'Control presupuestal y toma de decisiones',
       'Rendición de cuentas de los recursos',
     ],
-    objective:
-      'Aprenderás a planificar el dinero de la comunidad o de su empresa, a anticipar faltas de caja y a medir resultados con indicadores para decidir con datos.',
+    objective: [
+      'Elaborar el presupuesto anual de la comunidad o de su empresa',
+      'Proyectar el flujo de caja y anticipar los meses de falta de dinero',
+      'Definir indicadores y tableros de control para medir resultados',
+      'Administrar los fondos comunales con registros claros y auditables',
+      'Presentar informes financieros entendibles para la asamblea',
+    ],
+    audience: [
+      'Tesoreros, presidentes y directivos de comunidades campesinas',
+      'Gerentes, administradores y contadores de empresas comunales',
+      'Miembros del directorio y de la junta de vigilancia',
+      'Comités que administran fondos comunales y aportes de empresas',
+      'Asesores y profesionales de apoyo a comunidades',
+    ],
     foto: 'planificacion-financiera-comunidad',
     alt: 'Asesora muestra en una laptop gráficos financieros a una pareja de comuneros, con calculadora y reportes sobre la mesa',
   },
@@ -188,8 +275,20 @@ const CURSOS: Curso[] = [
       'Obligaciones ambientales de la empresa comunal',
       'Inspecciones, auditorías y mejora continua',
     ],
-    objective:
-      'Te ayudará a que la empresa comunal cumpla las exigencias de seguridad, salud y ambiente que piden las mineras y constructoras para contratar, y a prevenir accidentes en sus operaciones.',
+    objective: [
+      'Identificar peligros, evaluar riesgos y aplicar controles operativos',
+      'Cumplir las obligaciones de seguridad y salud que exigen mineras y constructoras',
+      'Implementar el plan de manejo ambiental y responder ante incidentes',
+      'Preparar a la empresa para auditorías, homologaciones e inspecciones',
+      'Promover una cultura de prevención entre los trabajadores',
+    ],
+    audience: [
+      'Gerentes y supervisores de empresas comunales que prestan servicios a minería y construcción',
+      'Responsables de seguridad, salud ocupacional y medio ambiente',
+      'Jefes de cuadrilla, capataces y trabajadores de campo',
+      'Directivos comunales que supervisan operaciones en su territorio',
+      'Profesionales que preparan a la empresa para homologaciones y auditorías',
+    ],
     foto: 'capacitacion-seguridad-muestreo-ambiental',
     alt: 'Capacitación en campo junto a un río: un instructor con casco y guantes enseña a tomar muestras de agua a seis trabajadores con chalecos',
   },
@@ -232,7 +331,8 @@ async function main() {
       name: c.name,
       summary: c.summary,
       topics: c.topics,
-      objective: c.objective,
+      objective: c.objective.join('\n'),
+      audience: c.audience.join('\n'),
       price: c.price ?? null,
       coverImageId: foto.id,
       coverAlt: c.alt,
