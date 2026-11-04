@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { postInclude, postSummaryInclude, toPostDTO, toPostSummaryDTO } from '../services/mappers';
+import { deleteMediaIfUnused } from '../services/media.service';
 import { auditPost } from '../services/seo.service';
 import { asyncHandler, badRequest, notFound } from '../utils/http';
 import { slugify, uniqueSlug } from '../utils/slug';
@@ -377,9 +378,20 @@ export const getPostSeo = asyncHandler(async (req, res) => {
 });
 
 export const deletePost = asyncHandler(async (req, res) => {
-  // Los bloques caen por onDelete: Cascade; los archivos subidos se conservan
-  // porque pueden estar reutilizados en otro artículo.
-  await prisma.post.delete({ where: { id: req.params.id! } });
+  const id = req.params.id!;
+  const actual = await prisma.post.findUnique({
+    where: { id },
+    select: { coverImageId: true, blocks: { select: { mediaId: true } } },
+  });
+  if (!actual) throw notFound('El artículo no existe');
+
+  // Los bloques caen por onDelete: Cascade. Las fotos se borran del disco solo
+  // si ningún otro artículo, curso, proyecto o ajuste las sigue usando
+  // (igual que en cursos y proyectos): así no se acumulan huérfanas.
+  await prisma.post.delete({ where: { id } });
+  const fotos = new Set([actual.coverImageId, ...actual.blocks.map((b) => b.mediaId)]);
+  for (const mediaId of fotos) await deleteMediaIfUnused(mediaId);
+
   revalidateWeb(['posts', 'categories']);
   res.json({ ok: true, message: 'Artículo eliminado' });
 });
