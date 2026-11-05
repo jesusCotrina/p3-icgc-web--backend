@@ -65,6 +65,7 @@ const updateSchema = z.object({
   googleSiteVerification: z.string().max(200).nullable().optional(),
 
   // Cifras del hero. Enteros: el frontend se encarga del "+" y de animarlas.
+  clientSatisfaction: z.coerce.number().int().min(0).max(100).optional(),
   yearsExperience: z.coerce.number().int().min(0).max(200).optional(),
   projectsAdvised: z.coerce.number().int().min(0).max(100000).optional(),
   regionsServed: z.coerce.number().int().min(0).max(200).optional(),

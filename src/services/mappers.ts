@@ -132,6 +132,7 @@ export function toSettingsDTO(s: any): SiteSettingsDTO {
     tiktokUrl: s.tiktokUrl ?? null,
     googleAnalyticsId: s.googleAnalyticsId ?? null,
     googleSiteVerification: s.googleSiteVerification ?? null,
+    clientSatisfaction: s.clientSatisfaction,
     yearsExperience: s.yearsExperience,
     projectsAdvised: s.projectsAdvised,
     regionsServed: s.regionsServed,

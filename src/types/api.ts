@@ -110,9 +110,10 @@ export interface SiteSettingsDTO {
   tiktokUrl: string | null;
   googleAnalyticsId: string | null;
   googleSiteVerification: string | null;
-  /** Cifras del hero: solo el numero, el "+" lo pone el frontend */
-  yearsExperience: number;
+  /** Las cuatro cifras del inicio: solo el numero, el "+" y el "%" los pone el frontend */
+  clientSatisfaction: number;
   projectsAdvised: number;
+  yearsExperience: number;
   regionsServed: number;
   /** Franja del líder en /nosotros: sin nombre no se muestra */
   leaderName: string | null;

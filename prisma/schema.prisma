@@ -232,13 +232,12 @@ model SiteSettings {
   googleAnalyticsId    String?
   googleSiteVerification String?
 
-  // ── Cifras del hero de la página de inicio ──
-  // Se guardan solo los números: el "+" y las etiquetas los pone el frontend.
-  // projectsAdvised y regionsServed YA NO SE USAN: el hero las calcula desde
-  // la tabla projects para que coincidan con el mapa. Se conservan las
-  // columnas para no perder datos con una migración destructiva.
-  yearsExperience  Int    @default(10)
+  // ── Las cuatro cifras de "Quiénes somos" en la página de inicio ──
+  // Se guardan solo los números: el "+", el "%" y las etiquetas los pone la web.
+  // Se editan en Ajustes del sitio (nov. 2026); antes dos se calculaban solas.
+  clientSatisfaction Int  @default(90)
   projectsAdvised  Int    @default(50)
+  yearsExperience  Int    @default(10)
   regionsServed    Int    @default(3)
 
   // ── Líder / gerente general (franja de /nosotros) ──
