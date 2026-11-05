@@ -258,26 +258,34 @@ const EXPERIENCIAS: Experiencia[] = [
     alt: 'Foto grupal de comuneros y comuneras de Pararín al cierre de una capacitación',
   },
   {
-    title: 'Hochschild Mining y la empresa comunal ECOSERM VIP',
-    company: 'Hochschild Mining (Perú) S.A.C.',
+    // Una sola experiencia: la empresa comunal trabaja con las dos mineras del grupo Hochschild
+    title: 'Hochschild Mining, Minera Ares y la empresa comunal ECOSERM VIP',
+    company: 'Hochschild Mining (Perú) S.A.C. y Compañía Minera Ares S.A.C.',
     community: ECOSERM_VIP,
     location: 'Por confirmar',
     region: 'arequipa',
+    headline: 'Constitución y Fortalecimiento Empresarial de ECOSERM VIP',
     objective:
-      'Asesoría en la constitución y formalización de ECOSERM VIP y acompañamiento en negociaciones con Hochschild Mining para promover oportunidades de negocio.',
+      'Asesoría a la empresa comunal de la Comunidad Campesina Virgen de las Nieves de Villa Patari para su formalización y el desarrollo de oportunidades de negocio con Hochschild Mining y Compañía Minera Ares.',
     items: [
       {
-        title: 'Constitución y formalización de ECOSERM VIP',
-        description: 'Asesoría para constituir y formalizar la empresa comunal.',
+        title: 'Constitución y formalización',
+        description:
+          'Asesoría en la constitución de ECOSERM VIP y los trámites necesarios para su funcionamiento, incluyendo la apertura de su cuenta bancaria.',
       },
       {
-        title: 'Negociaciones con Hochschild Mining',
-        description: 'Acompañamiento en las negociaciones para promover oportunidades de negocio.',
+        title: 'Negociación y oportunidades de negocio',
+        description:
+          'Asesoramiento y acompañamiento en negociaciones con la minera para acceder a nuevos frentes de trabajo y ampliar los servicios de la empresa comunal.',
+      },
+      {
+        title: 'Sensibilización y gestión empresarial',
+        description:
+          'Charlas y presentación de casos de éxito de empresas comunales, promoviendo buenas prácticas de gestión y el desarrollo sostenible de ECOSERM VIP.',
       },
     ],
     foto: 'proyecto-7-hd.webp',
     alt: 'Dirigentes y asesores revisando mapas y documentos en una mesa de trabajo',
-    oculta: true,
   },
   {
     title: 'Minas Buenaventura y la empresa comunal ECOSERMUQ de Quichas',
@@ -304,28 +312,12 @@ const EXPERIENCIAS: Experiencia[] = [
     foto: 'proyecto-2-hd.webp',
     alt: 'Excavadora cargando material en un volquete dentro de una operación minera en la sierra',
   },
-  {
-    title: 'Minera Ares y la empresa comunal ECOSERM VIP',
-    company: 'Compañía Minera Ares S.A.C.',
-    community: ECOSERM_VIP,
-    location: 'Por confirmar',
-    region: 'arequipa',
-    objective:
-      'Asesoría en la constitución y formalización de ECOSERM VIP y acompañamiento en negociaciones con la Compañía Minera Ares para promover oportunidades de negocio.',
-    items: [
-      {
-        title: 'Constitución y formalización de ECOSERM VIP',
-        description: 'Asesoría para constituir y formalizar la empresa comunal.',
-      },
-      {
-        title: 'Negociaciones con la Compañía Minera Ares',
-        description: 'Acompañamiento en las negociaciones para promover oportunidades de negocio.',
-      },
-    ],
-    foto: 'proyecto-7-hd.webp',
-    alt: 'Dirigentes y asesores revisando mapas y documentos en una mesa de trabajo',
-    oculta: true,
-  },
+];
+
+/** Experiencias que se unieron en otra: se borran para que no salgan dos veces. */
+const RETIRADAS = [
+  'hochschild-mining-y-la-empresa-comunal-ecoserm-vip',
+  'minera-ares-y-la-empresa-comunal-ecoserm-vip',
 ];
 
 /** Copia la foto a uploads/images (si falta) y la registra en Multimedia. */
@@ -379,6 +371,9 @@ async function main() {
     await prisma.project.upsert({ where: { slug }, update: datos, create: { ...datos, slug } });
     console.log(`   [ok] ${e.oculta ? '(oculto) ' : ''}${e.title}`);
   }
+
+  const retiradas = await prisma.project.deleteMany({ where: { slug: { in: RETIRADAS } } });
+  if (retiradas.count) console.log(`   [ok] Experiencias unidas en otra, retiradas: ${retiradas.count}`);
 
   const ejemplos = await prisma.project.updateMany({
     where: { title: { startsWith: 'Proyecto de ejemplo', mode: 'insensitive' }, isPublished: true },
