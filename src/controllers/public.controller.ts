@@ -124,6 +124,7 @@ export const listPublicCategories = asyncHandler(async (_req, res) => {
 });
 
 export const getPublicSettings = asyncHandler(async (_req, res) => {
+  const heroSlides = await prisma.heroSlide.findMany({ include: { media: true }, orderBy: { position: 'asc' } });
   const settings = await prisma.siteSettings.findUnique({
     where: { id: 'singleton' },
     include: { logo: true, ogImage: true, leaderPhoto: true },
@@ -134,11 +135,11 @@ export const getPublicSettings = asyncHandler(async (_req, res) => {
       data: { id: 'singleton' },
       include: { logo: true, ogImage: true, leaderPhoto: true },
     });
-    res.json(toSettingsDTO(created));
+    res.json(toSettingsDTO(created, heroSlides));
     return;
   }
 
-  res.json(toSettingsDTO(settings));
+  res.json(toSettingsDTO(settings, heroSlides));
 });
 
 /**

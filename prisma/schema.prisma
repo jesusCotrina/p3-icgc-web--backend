@@ -70,9 +70,23 @@ model Media {
   logoOf       SiteSettings[] @relation("SiteLogo")
   ogImageOf    SiteSettings[] @relation("SiteOgImage")
   leaderPhotoOf SiteSettings[] @relation("LeaderPhoto")
+  heroSlides   HeroSlide[]
 
   @@index([kind, createdAt])
   @@map("media")
+}
+
+/// Fotos del hero de la página de inicio, en orden (hasta 3). Se editan en
+/// Ajustes del sitio; sin filas, la web muestra sus fotos de fábrica.
+model HeroSlide {
+  id       String @id @default(cuid())
+  position Int    @unique
+  media    Media  @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  mediaId  String
+  /// SEO: describe la escena; obligatorio
+  alt      String
+
+  @@map("hero_slides")
 }
 
 // ─────────────────────────── Blog ───────────────────────────

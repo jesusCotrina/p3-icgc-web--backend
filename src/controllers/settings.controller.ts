@@ -25,9 +25,13 @@ async function getOrCreateSettings() {
   });
 }
 
+/** Fotos del hero del inicio, en orden. */
+export const cargarHero = () =>
+  prisma.heroSlide.findMany({ include: { media: true }, orderBy: { position: 'asc' } });
+
 export const getSettings = asyncHandler(async (_req, res) => {
   const settings = await getOrCreateSettings();
-  res.json(toSettingsDTO(settings));
+  res.json(toSettingsDTO(settings, await cargarHero()));
 });
 
 const updateSchema = z.object({
@@ -77,6 +81,16 @@ const updateSchema = z.object({
   leaderBio: z.string().trim().max(2000).nullable().optional(),
   leaderPhotoMediaId: z.string().nullable().optional(),
   leaderPhotoAlt: z.string().trim().max(300).nullable().optional(),
+  // Fotos del hero del inicio, en orden; cada una con su texto alternativo (SEO)
+  heroSlides: z
+    .array(
+      z.object({
+        mediaId: z.string().min(1),
+        alt: z.string().trim().min(3, 'Describe la foto de la portada').max(300),
+      }),
+    )
+    .max(3, 'La portada admite hasta 3 fotos')
+    .optional(),
   leaderCareer: z
     .array(z.object({ period: z.string().trim().max(60), text: z.string().trim().max(400) }))
     .max(30)
@@ -90,7 +104,7 @@ const updateSchema = z.object({
 });
 
 export const updateSettings = asyncHandler(async (req, res) => {
-  const data = updateSchema.parse(req.body);
+  const { heroSlides, ...data } = updateSchema.parse(req.body);
   const anterior = await getOrCreateSettings();
 
   // SEO: la foto del líder también necesita su texto alternativo
@@ -114,8 +128,23 @@ export const updateSettings = asyncHandler(async (req, res) => {
     await deleteMediaIfUnused(anterior.leaderPhotoMediaId);
   }
 
+  // Fotos del hero: se reemplazan todas (en orden) y las que ya no se usan se borran del disco
+  if (heroSlides) {
+    const anteriores = await prisma.heroSlide.findMany({ select: { mediaId: true } });
+    await prisma.$transaction([
+      prisma.heroSlide.deleteMany({}),
+      prisma.heroSlide.createMany({
+        data: heroSlides.map((h, i) => ({ position: i + 1, mediaId: h.mediaId, alt: h.alt })),
+      }),
+    ]);
+    const nuevas = new Set(heroSlides.map((h) => h.mediaId));
+    for (const { mediaId } of anteriores) {
+      if (!nuevas.has(mediaId)) await deleteMediaIfUnused(mediaId);
+    }
+  }
+
   revalidateWeb(['settings']);
-  res.json(toSettingsDTO(settings));
+  res.json(toSettingsDTO(settings, await cargarHero()));
 });
 
 /**
@@ -164,5 +193,5 @@ export const uploadLogoHandler = asyncHandler(async (req, res) => {
   });
 
   revalidateWeb(['settings']);
-  res.status(201).json({ logo: toMediaDTO(media), settings: toSettingsDTO(settings) });
+  res.status(201).json({ logo: toMediaDTO(media), settings: toSettingsDTO(settings, await cargarHero()) });
 });

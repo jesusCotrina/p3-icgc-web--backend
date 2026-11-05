@@ -24,6 +24,7 @@ export async function deleteMediaIfUnused(mediaId: string | null | undefined): P
           logoOf: true,
           ogImageOf: true,
           leaderPhotoOf: true,
+          heroSlides: true,
         },
       },
     },

@@ -1,5 +1,6 @@
 import { env } from '../config/env';
 import type {
+  HeroSlideDTO,
   CourseDTO,
   MediaDTO,
   PostBlockDTO,
@@ -110,8 +111,14 @@ export function toPostDTO(p: any): PostDTO {
   };
 }
 
-export function toSettingsDTO(s: any): SiteSettingsDTO {
+/** Fotos del hero del inicio (tabla hero_slides) ya ordenadas por posición. */
+export function toHeroSlideDTO(h: { id: string; position: number; alt: string; media: any }): HeroSlideDTO {
+  return { id: h.id, position: h.position, alt: h.alt, media: toMediaDTO(h.media)! };
+}
+
+export function toSettingsDTO(s: any, heroSlides: Parameters<typeof toHeroSlideDTO>[0][] = []): SiteSettingsDTO {
   return {
+    heroSlides: heroSlides.map(toHeroSlideDTO),
     siteName: s.siteName,
     tagline: s.tagline,
     defaultMetaDescription: s.defaultMetaDescription,
