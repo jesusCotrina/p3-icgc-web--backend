@@ -19,8 +19,18 @@ export function revalidateWeb(tags: string[]): void {
     },
     body: JSON.stringify({ tags }),
     signal: AbortSignal.timeout(5000),
-  }).catch((err: unknown) => {
-    // eslint-disable-next-line no-console
-    console.warn(`[revalidate] La web no respondió (${tags.join(', ')}):`, (err as Error).message);
-  });
+  })
+    .then((res) => {
+      // Un 401 es REVALIDATE_SECRET distinto en el servidor y en Vercel; un 404,
+      // WEB_REVALIDATE_URL apuntando a otro dominio. Sin este aviso el fallo
+      // es silencioso y la web tarda hasta 24 h en mostrar el cambio.
+      if (!res.ok) {
+        // eslint-disable-next-line no-console
+        console.warn(`[revalidate] La web rechazó la petición (${tags.join(', ')}): HTTP ${res.status} en ${env.WEB_REVALIDATE_URL}`);
+      }
+    })
+    .catch((err: unknown) => {
+      // eslint-disable-next-line no-console
+      console.warn(`[revalidate] La web no respondió (${tags.join(', ')}):`, (err as Error).message);
+    });
 }
