@@ -16,6 +16,7 @@
     "cargar:proyectos": "tsx scripts/cargar-proyectos.ts",
     "cargar:cursos": "tsx scripts/cargar-cursos.ts",
     "cargar:lider": "tsx scripts/cargar-lider.ts",
+    "cargar:creditos": "tsx scripts/cargar-creditos.ts",
     "typecheck": "tsc --noEmit"
   },
   "prisma": {
