@@ -29,6 +29,10 @@ type MediaRow = {
   durationSec: number | null;
   alt: string | null;
   caption: string | null;
+  // Opcionales: una fila parcial (p. ej. un select viejo) sigue sirviendo
+  author?: string | null;
+  source?: string | null;
+  sourceUrl?: string | null;
   createdAt: Date;
 };
 
@@ -53,6 +57,9 @@ export function toMediaDTO(m: MediaRow | null | undefined): MediaDTO | null {
     durationSec: m.durationSec,
     alt: m.alt,
     caption: m.caption,
+    author: m.author ?? null,
+    source: m.source ?? null,
+    sourceUrl: m.sourceUrl ?? null,
     createdAt: m.createdAt.toISOString(),
   };
 }

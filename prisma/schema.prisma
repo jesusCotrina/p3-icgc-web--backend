@@ -57,6 +57,11 @@ model Media {
   /// SEO: texto alternativo. Obligatorio en imágenes antes de publicarse.
   alt          String?
   caption      String?
+  /// Créditos de la foto: autor, nombre de la fuente y enlace. Se muestran
+  /// como pie de foto en el blog.
+  author       String?
+  source       String?
+  sourceUrl    String?
 
   uploadedBy   User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
   uploadedById String?

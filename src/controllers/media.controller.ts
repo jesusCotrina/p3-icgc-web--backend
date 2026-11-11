@@ -100,6 +100,19 @@ export const listMedia = asyncHandler(async (req, res) => {
 const updateMediaSchema = z.object({
   alt: z.string().max(300).nullable().optional(),
   caption: z.string().max(500).nullable().optional(),
+  // Créditos de la foto (pie de foto en el blog)
+  author: z.string().trim().max(150).nullable().optional(),
+  source: z.string().trim().max(150).nullable().optional(),
+  sourceUrl: z
+    .string()
+    .trim()
+    .max(500)
+    .refine(
+      (v) => v === '' || /^https?:\/\/\S+$/.test(v),
+      'El enlace de la fuente debe empezar con http:// o https://',
+    )
+    .nullable()
+    .optional(),
 });
 
 export const updateMedia = asyncHandler(async (req, res) => {

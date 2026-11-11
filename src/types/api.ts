@@ -35,6 +35,10 @@ export interface MediaDTO {
   durationSec: number | null;
   alt: string | null;
   caption: string | null;
+  /** Créditos: autor de la foto, nombre de la fuente y enlace (pie de foto en el blog) */
+  author: string | null;
+  source: string | null;
+  sourceUrl: string | null;
   createdAt: string;
 }
 
